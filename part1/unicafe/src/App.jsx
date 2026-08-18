@@ -18,9 +18,35 @@ const Subheader = ({ heading }) => {
   )
 }
 
-const Statistics = ({ label, ratingCount }) => {
+const Statistics = ({ label, value }) => {
   return (
-    <p>{label} {ratingCount}</p>
+    <tr>
+      <th>{label}</th>
+      <td>{value}</td>
+    </tr>
+  )
+};
+
+const StatisticsContainer = ({ totalFeedback, good, neutral, bad, average, positive }) => {
+  if (totalFeedback === 0) {
+    return (
+      <div>
+        No feedback given
+      </div>
+    )
+  };
+
+  return (
+    <table>
+      <tbody>
+        <Statistics label="Good" value={good} />
+        <Statistics label="Neutral" value={neutral} />
+        <Statistics label="Bad" value={bad} />
+        <Statistics label="All" value={totalFeedback} />
+        <Statistics label="Average" value={average} />
+        <Statistics label="Positive" value={positive} />
+      </tbody>
+    </table>
   )
 }
 
@@ -70,12 +96,7 @@ const App = () => {
       <Button onClickFn={neutralCounter} btnText="Neutral" />
       <Button onClickFn={badCounter} btnText="Bad" />
       <Subheader heading="Statistics" />
-      <Statistics label="Good" ratingCount={rating.good} />
-      <Statistics label="Neutral" ratingCount={rating.neutral} />
-      <Statistics label="Bad" ratingCount={rating.bad} />
-      <Statistics label="All" ratingCount={totalFeedback} />
-      <Statistics label="Average" ratingCount={averageScore} />
-      <Statistics label="Positive" ratingCount={positivePercentage} />
+      <StatisticsContainer totalFeedback={totalFeedback} good={rating.good} neutral={rating.neutral} bad={rating.bad} average={averageScore.toFixed(1)} positive={positivePercentage.toFixed(2) + " % "} />
     </div>
   )
 };
