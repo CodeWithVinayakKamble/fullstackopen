@@ -57,8 +57,11 @@ const App = () => {
 
     setRating({ ...rating, bad: updateBad });
     console.log(`Bad Rating After : ${updateBad}`)
-
   };
+
+  let totalFeedback = rating.good + rating.neutral + rating.bad;
+  const averageScore = totalFeedback === 0 ? 0 : (rating.good - rating.bad) / totalFeedback;
+  const positivePercentage = totalFeedback === 0 ? 0 : (rating.good / totalFeedback) * 100;
 
   return (
     <div>
@@ -70,6 +73,9 @@ const App = () => {
       <Statistics label="Good" ratingCount={rating.good} />
       <Statistics label="Neutral" ratingCount={rating.neutral} />
       <Statistics label="Bad" ratingCount={rating.bad} />
+      <Statistics label="All" ratingCount={totalFeedback} />
+      <Statistics label="Average" ratingCount={averageScore} />
+      <Statistics label="Positive" ratingCount={positivePercentage} />
     </div>
   )
 };
