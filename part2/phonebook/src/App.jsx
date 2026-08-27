@@ -29,13 +29,13 @@ const PersonForm = ({ onSubmit, newName, userNameHandler, newNumber, userNumberH
   )
 };
 
-const Persons = ({ personsToShow }) => {
+const Persons = ({ personsToShow, deleteHandler }) => {
   return (
     <div>
       {personsToShow.map(person => {
         const { id, name, number } = person;
         return (
-          <p key={id}>{name} {number}</p>
+          <p key={id}>{name} {number} <button onClick={() => deleteHandler(id, name)}>delete</button></p>
         )
       })}
     </div>
@@ -81,7 +81,6 @@ const App = () => {
     };
 
     // Connection to the backend (fake-server)
-
     personServices
       .create(personObject)
       .then(returnedPerson => {
@@ -89,6 +88,15 @@ const App = () => {
         setNewName('')
         setNewNumber('')
       })
+  };
+
+  // 
+  const deletePersonOf = (id, name) => {
+    if (window.confirm(`Delete ${name}`)) {
+      personServices
+        .remove(id)
+        .then(() => (setPersons(persons.filter(person => person.id !== id))))
+    }
   };
 
   // handler for name
@@ -121,7 +129,7 @@ const App = () => {
       <PersonForm onSubmit={addPerson} newName={newName} userNameHandler={handleUserName} newNumber={newNumber} userNumberHandler={handleUserNumber} />
 
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow} />
+      <Persons personsToShow={personsToShow} deleteHandler={deletePersonOf} />
     </div>
   )
 };
