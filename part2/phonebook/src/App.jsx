@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from 'axios';
+import personServices from './services/persons';
 
 const Filter = ({ value, handler }) => {
   return (
@@ -53,10 +53,9 @@ const App = () => {
 
   // fetching data here
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        const { data } = response;
+    personServices
+      .getAll()
+      .then(data => {
         setPersons(data)
       })
   }, [])
@@ -82,14 +81,13 @@ const App = () => {
     };
 
     // Connection to the backend (fake-server)
-    axios
-      .post('http://localhost:3001/persons', personObject)
-      .then(response => {
-        const { data } = response;
-        setPersons([...persons, data]);
+
+    personServices
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons([...persons, returnedPerson])
         setNewName('')
         setNewNumber('')
-
       })
   };
 
