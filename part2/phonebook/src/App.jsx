@@ -62,10 +62,12 @@ const App = () => {
   }, [])
 
   const addPerson = (event) => {
+
     event.preventDefault();
 
     let isDuplicateName = persons.some((person) => person.name === newName);
 
+    // Duplicate Checking
     if (isDuplicateName) {
       alert(`${newName} is already added to phonebook`);
       setNewName('');
@@ -73,29 +75,40 @@ const App = () => {
       return;
     };
 
+    // object that contains user input
     const personObject = {
-      id: persons.length + 1,
       name: newName,
       number: newNumber
     };
 
-    setPersons([...persons, personObject]);
-    setNewName('')
-    setNewNumber('')
+    // Connection to the backend (fake-server)
+    axios
+      .post('http://localhost:3001/persons', personObject)
+      .then(response => {
+        const { data } = response;
+        setPersons([...persons, data]);
+        setNewName('')
+        setNewNumber('')
+
+      })
   };
 
+  // handler for name
   const handleUserName = (event) => {
     setNewName(event.target.value)
   };
 
+  // handler for number
   const handleUserNumber = (event) => {
     setNewNumber(event.target.value)
   };
 
+  // handler for serachBar
   const handleUserQuery = (event) => {
     setSearchQuery(event.target.value)
   };
 
+  // Filteration on typed
   const personsToShow = persons.filter(person => person.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
 
