@@ -44,14 +44,16 @@ const Persons = ({ personsToShow, deleteHandler }) => {
 
 const App = () => {
 
-  // 
+  // ==== useState ==== //
   const [persons, setPersons] = useState([]);
-  // Locked html Inputs into React state here;
+  // name
   const [newName, setNewName] = useState('');
+  // number
   const [newNumber, setNewNumber] = useState('');
+  // searchInput
   const [searchQuery, setSearchQuery] = useState('');
 
-  // fetching data here
+  // ==== fetching data here ==== //
   useEffect(() => {
     personServices
       .getAll()
@@ -60,19 +62,41 @@ const App = () => {
       })
   }, [])
 
+  // ==== Functions ==== //
   const addPerson = (event) => {
-
     event.preventDefault();
 
-    let isDuplicateName = persons.some((person) => person.name === newName);
+    // Finding Entry here
+    let isDuplicate = persons.find((person) => person.name === newName);
 
-    // Duplicate Checking
-    if (isDuplicateName) {
+    // Checking for duplicate
+    if (isDuplicate && isDuplicate.number === newNumber) {
       alert(`${newName} is already added to phonebook`);
       setNewName('');
-      setNewNumber('')
+      setNewNumber('');
       return;
     };
+
+    // Cheking for non duplicate
+    if (isDuplicate && isDuplicate.number !== newNumber) {
+      let confirmation = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one ?`);
+
+      if (confirmation) {
+        let changedNumber = { ...isDuplicate, number: newNumber };
+        personServices
+          .update(isDuplicate.id, changedNumber)
+          .then(updatedPerson => {
+            setPersons(persons.map(p => p.id === isDuplicate.id ? updatedPerson : p))
+            setNewName('')
+            setNewNumber('')
+          })
+      }
+      else {
+        setNewName('')
+        setNewNumber('')
+      }
+      return
+    }
 
     // object that contains user input
     const personObject = {
@@ -99,6 +123,11 @@ const App = () => {
     }
   };
 
+  // Filteration on typed
+  const personsToShow = persons.filter(person => person.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+
+  // ==== Handlers ==== //
   // handler for name
   const handleUserName = (event) => {
     setNewName(event.target.value)
@@ -113,10 +142,6 @@ const App = () => {
   const handleUserQuery = (event) => {
     setSearchQuery(event.target.value)
   };
-
-  // Filteration on typed
-  const personsToShow = persons.filter(person => person.name.toLowerCase().includes(searchQuery.toLowerCase()));
-
 
   return (
     <div>
