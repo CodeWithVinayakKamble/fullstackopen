@@ -1,0 +1,22 @@
+.notification {
+    padding: 0.8rem;
+    margin-block-end: 0.8rem;
+    font-size: 1.2rem;
+
+    background-color: lightgrey;
+}
+
+.success {
+    color: green;
+    border: 2px solid green;
+}
+
+.error {
+    color: red;
+    border: 2px solid red;
+}
+
+.delete {
+    color: red;
+    border: 2px solid red;
+}
