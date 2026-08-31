@@ -1,4 +1,5 @@
 import Languages from "./Languages";
+import Weather from "./Weather";
 
 const CountryToShow = ({ countryData }) => {
 
@@ -14,6 +15,7 @@ const CountryToShow = ({ countryData }) => {
                 <Languages langObj={languages} />
             </ul>
             <img src={png} alt={countryName} width="200" />
+            <Weather capital={capital} />
         </div >
     )
 
