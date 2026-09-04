@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 
 // express Instance
 const app = express();
@@ -11,6 +12,8 @@ morgan.token('body', (request, response) => {
 
 
 // MiddleWare
+app.use(cors());
+app.use(express.static('dist'))
 app.use(express.json());
 app.use(
     morgan(':method :url :status :res[content-length] - :response-time ms :body')
@@ -39,11 +42,6 @@ let persons = [
         "number": "39-23-6423122"
     }
 ];
-
-// entry point
-app.get('/', (request, response) => {
-    response.send('<h1>Phonebook Backend</h1>')
-});
 
 // persons is live on 3001 by url /api/persons 
 app.get('/api/persons', (request, response) => {
@@ -124,7 +122,7 @@ app.use(unknownEndpoint);
 
 
 // app is live on port
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`server is live on : http://localhost:${PORT}`);
 });
