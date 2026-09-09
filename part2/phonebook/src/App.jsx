@@ -102,6 +102,16 @@ const App = () => {
         })
         setTimeout(() => { setNotification(null) }, 2000)
       })
+      .catch(error => {
+        console.log(error.response.data.error)
+        setNewName('')
+        setNewNumber('')
+        setNotification({
+          message: error.response.data.error,
+          type: 'error'
+        })
+        setTimeout(() => { setNotification(null) }, 2000)
+      })
   };
 
   // 
@@ -120,7 +130,7 @@ const App = () => {
         .catch(err => {
           setNotification({
             message: `Information of ${name} has already been removed from server`,
-            type:'error'
+            type: 'error'
           })
           setTimeout(() => { setNotification(null) }, 2000)
           setPersons(persons.filter(person => person.id !== id))
