@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title":"testing request logger middleware",
+    "author":"dev vinayak kamble",
+    "url":"http://localhost:3003/api/blogs",
+    "likes":10
+}
