@@ -6,22 +6,23 @@ blogRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogRouter.post('/', (request, response, next) => {
+blogRouter.post('/', async (request, response) => {
+
   if (!request.body) {
     return response.status(400).json({ error: 'Content Missing' })
   }
+
   const { title, author, url, likes } = request.body
 
-  const blog = new Blog({
+  const newBlog = new Blog({
     title: title,
     author: author,
     url: url,
     likes: likes
   })
 
-  blog.save()
-    .then(savedBlog => response.status(201).json(savedBlog))
-    .catch(error => next(error))
+  const savedBlog = await newBlog.save()
+  response.status(201).json(savedBlog)
 })
 
 module.exports = blogRouter

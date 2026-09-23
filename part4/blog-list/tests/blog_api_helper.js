@@ -1,3 +1,5 @@
+
+
 let initialBlogs = [
     {
         title: "first blog for testing test db ",
@@ -19,4 +21,5 @@ let initialBlogs = [
     },
 ]
 
-module.exports = { initialBlogs }
+
+module.exports = { initialBlogs}
