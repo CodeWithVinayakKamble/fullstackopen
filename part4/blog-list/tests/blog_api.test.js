@@ -4,15 +4,24 @@ const app = require('../app')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const initialBlogs = require('./blog_api_helper').initialBlogs
 const allBlogsInDb = require('./blog_api_helper').blogsAtEnd
+const bcryptjs = require('bcryptjs')
 
 
 const api = supertest(app)
 
 // ==== BeforEach (wipes previous DB data  & inserts initialBlogs) ==== //
 beforeEach(async () => {
+  
   await Blog.deleteMany({})
+  await User.deleteMany({})
+
+  const passwordHash = await bcryptjs.hash("admin@vinayak", 10)
+  const dummyUser = new User({ username: "admin_vinayak", name: "vinayak", passwordHash })
+  await dummyUser.save()
+
   await Blog.insertMany(initialBlogs)
 })
 

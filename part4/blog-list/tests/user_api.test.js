@@ -12,6 +12,9 @@ beforeEach(async () => {
   await User.deleteMany({})
 })
 
+// ======================================== //
+
+
 describe('checking db length', () => {
 
   test('there is a zero users at initial state', async () => {
@@ -94,6 +97,8 @@ describe('testing for duplicate user && uniqueness by default', () => {
 
 })
 
+// ======================================== //
+
 describe('Invalid users testing ,if user input less than 3 char in username or in password', () => {
 
   test('db length should be same invalid user should not get saved in db if put short username', async () => {
@@ -117,7 +122,7 @@ describe('Invalid users testing ,if user input less than 3 char in username or i
     assert.strictEqual(response.body.error, 'username must be at least 3 characters long')
   })
 
-  //  ======== //
+    // ======================================== //
 
   test('db length should be same invalid user should not get saved in db if put short password', async () => {
 
@@ -141,7 +146,7 @@ describe('Invalid users testing ,if user input less than 3 char in username or i
   })
 })
 
-
+// ======================================== //
 
 after(async () => {
   await mongoose.connection.close()
