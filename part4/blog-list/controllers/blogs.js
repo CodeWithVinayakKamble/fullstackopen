@@ -1,6 +1,8 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const { SECRET } = require('../utils/config')
 
 
 
@@ -11,10 +13,41 @@ blogRouter.get('/', async (request, response) => {
 })
 
 // ==== HTTP POST Router ==== //
+
+// Helper Function
+const getTokenFrom = request => {
+
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
+
+// ================================== //
+
 blogRouter.post('/', async (request, response) => {
 
   if (!request.body) {
     return response.status(400).json({ error: 'Content Missing' })
+  }
+
+  const token = getTokenFrom(request)
+
+  if (!token) {
+    return response.status(401).json({ error: "Token Missing" })
+  }
+
+  const decodedToken = jwt.verify(token, SECRET)
+  // The object decoded from the token contains the ""username and id fields"", which tell the server who made the request
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'Invalid Token' })
+  }
+  const user = await User.findById(decodedToken.id)
+
+  if (!user) {
+    return response.status(400).json({ error: "UserId missing or not valid" })
   }
 
   const { title, author, url, likes } = request.body
@@ -27,7 +60,6 @@ blogRouter.post('/', async (request, response) => {
     return response.status(400).send({ error: 'Url Missing' })
   }
 
-  const user = await User.findOne({})
 
   const newBlog = new Blog({
     title: title,
