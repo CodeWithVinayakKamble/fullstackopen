@@ -1,8 +1,10 @@
 // ================================== //
 // Cutom Logger,Error & Fallback Middlewares
 // ================================== //
-
 const logger = require('./logger')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const { SECRET } = require('../utils/config')
 
 const requestLogger = (request, response, next) => {
   logger.info('---')
@@ -51,5 +53,32 @@ const tokenExtractor = (request, response, next) => {
   next()
 }
 
+const userExtractor = async (request, response, next) => {
 
-module.exports = { requestLogger, unknownEndpoint, errorHandler, tokenExtractor }
+  const token = request.token
+
+  if (!token) {
+    return response.status(401).json({ error: "Token Missing" })
+  }
+
+  const decodedToken = jwt.verify(token, SECRET)
+  // The object decoded from the token contains the ""username and id fields"", which tell the server who made the request
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'Invalid Token' })
+  }
+
+  const user = await User.findById(decodedToken.id)
+
+  if (!user) {
+    return response.status(401).json({ error: "Invalid User" })
+  }
+
+  request.user = user
+
+  next()
+
+}
+
+
+module.exports = { requestLogger, unknownEndpoint, errorHandler, tokenExtractor, userExtractor }

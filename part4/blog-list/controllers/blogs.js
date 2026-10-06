@@ -1,8 +1,7 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
-const { SECRET } = require('../utils/config')
+const { userExtractor } = require('../utils/middleware')
+
 
 
 
@@ -16,29 +15,12 @@ blogRouter.get('/', async (request, response) => {
 // ================================== //
 // HTTP POST Route
 // ================================== //
-blogRouter.post('/', async (request, response) => {
+blogRouter.post('/', userExtractor, async (request, response) => {
+
+  const user = request.user
 
   if (!request.body) {
     return response.status(400).json({ error: 'Content Missing' })
-  }
-
-  const token = request.token
-
-  if (!token) {
-    return response.status(401).json({ error: "Token Missing" })
-  }
-
-  const decodedToken = jwt.verify(token, SECRET)
-  // The object decoded from the token contains the ""username and id fields"", which tell the server who made the request
-
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'Invalid Token' })
-  }
-
-  const user = await User.findById(decodedToken.id)
-
-  if (!user) {
-    return response.status(400).json({ error: "UserId missing or not valid" })
   }
 
   const { title, author, url, likes } = request.body
@@ -70,23 +52,12 @@ blogRouter.post('/', async (request, response) => {
 // ================================== //
 // HTTP DELETE Route
 // ================================== //
-blogRouter.delete('/:id', async (request, response) => {
+blogRouter.delete('/:id', userExtractor, async (request, response) => {
 
+  const user = request.user
+  
   const blogId = request.params.id
 
-  const token = request.token
-
-  if (!token) {
-    return response.status(401).json({ error: 'Token Missing' })
-  }
-
-  const decodedToken = jwt.verify(token, SECRET)
-
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: "Invalid Token" })
-  }
-
-  const user = await User.findById(decodedToken.id)
   const blog = await Blog.findById(blogId)
 
   if (!blog) {
