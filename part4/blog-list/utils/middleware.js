@@ -1,11 +1,15 @@
 // ================================== //
-// Cutom Logger,Error & Fallback Middlewares
+// Immports
 // ================================== //
 const logger = require('./logger')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const { SECRET } = require('../utils/config')
 
+
+// ================================== //
+// Morgan Logger / Custom Built Logger
+// ================================== //
 const requestLogger = (request, response, next) => {
   logger.info('---')
   logger.info('Method:', request.method)
@@ -14,12 +18,17 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
-
+// ================================== //
+// Fallback for UnknownEndpoints
+// ================================== //
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'Unknown Endpoint' })
 }
 
 
+// ================================== //
+// Centrelized Error Handling System
+// ================================== //
 const errorHandler = (error, request, response, next) => {
 
   logger.info(error.message)
@@ -39,9 +48,12 @@ const errorHandler = (error, request, response, next) => {
 
 
   next(error)
-
 }
 
+
+// ================================== //
+// JWT Token Extractor
+// ================================== //
 const tokenExtractor = (request, response, next) => {
 
   const authorization = request.get('authorization')
@@ -53,12 +65,15 @@ const tokenExtractor = (request, response, next) => {
   next()
 }
 
+// ================================== //
+//  User Extractor - Ready Made "user" , Who made the Request
+// ================================== //
 const userExtractor = async (request, response, next) => {
 
   const token = request.token
 
   if (!token) {
-    return response.status(401).json({ error: "Token Missing" })
+    return response.status(401).json({ error: 'Token Missing' })
   }
 
   const decodedToken = jwt.verify(token, SECRET)
@@ -71,7 +86,7 @@ const userExtractor = async (request, response, next) => {
   const user = await User.findById(decodedToken.id)
 
   if (!user) {
-    return response.status(401).json({ error: "Invalid User" })
+    return response.status(401).json({ error: 'Invalid User' })
   }
 
   request.user = user

@@ -122,7 +122,7 @@ describe('Invalid users testing ,if user input less than 3 char in username or i
     assert.strictEqual(response.body.error, 'username must be at least 3 characters long')
   })
 
-    // ======================================== //
+  // ======================================== //
 
   test('db length should be same invalid user should not get saved in db if put short password', async () => {
 

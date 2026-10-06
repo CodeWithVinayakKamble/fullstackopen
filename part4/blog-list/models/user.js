@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     }
 
   ]
-  
+
 })
 
 userSchema.set('toJSON', {

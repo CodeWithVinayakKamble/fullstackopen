@@ -11,21 +11,32 @@ const bcryptjs = require('bcryptjs')
 
 
 const api = supertest(app)
+let token = null
 
 // ==== BeforEach (wipes previous DB data  & inserts initialBlogs) ==== //
 beforeEach(async () => {
-  
+
   await Blog.deleteMany({})
   await User.deleteMany({})
 
-  const passwordHash = await bcryptjs.hash("admin@vinayak", 10)
-  const dummyUser = new User({ username: "admin_vinayak", name: "vinayak", passwordHash })
+  const passwordHash = await bcryptjs.hash('admin@vinayak', 10)
+  const dummyUser = new User({ username: 'admin_vinayak', name: 'vinayak', passwordHash })
   await dummyUser.save()
 
-  await Blog.insertMany(initialBlogs)
+  const loginResponse = await api
+    .post('/api/login')
+    .send({ username: 'admin_vinayak', password: 'admin@vinayak' })
+
+  token = loginResponse.body.token
+
+  const blogsWithOwner = initialBlogs.map(blog => ({ ...blog, user: dummyUser._id }))
+  await Blog.insertMany(blogsWithOwner)
 })
 
 
+// ======================================================= //
+// HTTP POST testing
+// ======================================================= //
 describe('Space for testing HTTP GET Request', () => {
 
   // ==== Request Hitting HTTP GET Request inbehalf of react and rest/postman ==== //
@@ -60,6 +71,7 @@ describe('space for testing HTTP POST request', () => {
 
     const response = await api
       .post('/api/blogs')
+      .set('Authorization',`Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -82,6 +94,7 @@ describe('space for testing HTTP POST request', () => {
 
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -101,7 +114,10 @@ describe('space for testing HTTP POST bad request', () => {
       likes: 25
     }
 
-    await api.post('/api/blogs').send(newBlog).expect(400)
+    await api.post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(400)
     const blogsInDb = await allBlogsInDb()
     assert.strictEqual(blogsInDb.length, initialBlogs.length)
   })
@@ -114,20 +130,29 @@ describe('space for testing HTTP POST bad request', () => {
       likes: 25
     }
 
-    await api.post('/api/blogs').send(newBlog).expect(400)
+    await api.post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlog)
+      .expect(400)
     const blogsInDb = await allBlogsInDb()
     assert.strictEqual(blogsInDb.length, initialBlogs.length)
   })
 
 })
 
+// ======================================================= //
+// HTTP DELETE testing
+// ======================================================= //
 describe('space for testing HTTP DELETE request', () => {
 
   test('for delete post Route', async () => {
 
     const grabbingBlog = await allBlogsInDb()
     const blogToDelete = grabbingBlog[0]
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204)
 
     const updatedDb = await allBlogsInDb()
     const ids = updatedDb.map(blog => blog.id)
@@ -137,6 +162,10 @@ describe('space for testing HTTP DELETE request', () => {
   })
 })
 
+
+// ======================================================= //
+// HTTP PUT testing
+// ======================================================= //
 
 describe('space for testing HTTP PUT request', () => {
 
@@ -162,6 +191,28 @@ describe('space for testing HTTP PUT request', () => {
 
     assert.strictEqual(response.body.likes, getFirstBlog.likes + 100)
   })
+})
+
+
+// ======================================================= //
+// Testing for Token Authentication and Authoriation HTTP POST
+// ======================================================= //
+
+describe('Testing JWT Authentication and authorization', () => {
+
+  test('fails with 401 Unauthorized if token is not provided', async () => {
+    const newBlog = {
+      title: 'Blog without token',
+      url: 'https://notoken.com'
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+  })
+
+
 })
 
 after(async () => {
