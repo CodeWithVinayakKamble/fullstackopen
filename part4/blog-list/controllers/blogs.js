@@ -12,27 +12,17 @@ blogRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-// ==== HTTP POST Router ==== //
-
-// Helper Function
-const getTokenFrom = request => {
-
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
-  }
-  return null
-}
 
 // ================================== //
-
+// HTTP POST Route
+// ================================== //
 blogRouter.post('/', async (request, response) => {
 
   if (!request.body) {
     return response.status(400).json({ error: 'Content Missing' })
   }
 
-  const token = getTokenFrom(request)
+  const token = request.token
 
   if (!token) {
     return response.status(401).json({ error: "Token Missing" })
@@ -44,6 +34,7 @@ blogRouter.post('/', async (request, response) => {
   if (!decodedToken.id) {
     return response.status(401).json({ error: 'Invalid Token' })
   }
+
   const user = await User.findById(decodedToken.id)
 
   if (!user) {
@@ -75,15 +66,45 @@ blogRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
-// ==== HTTP Delete router ==== //
+
+// ================================== //
+// HTTP DELETE Route
+// ================================== //
 blogRouter.delete('/:id', async (request, response) => {
-  const id = request.params.id
-  await Blog.findByIdAndDelete(id)
+
+  const blogId = request.params.id
+
+  const token = request.token
+
+  if (!token) {
+    return response.status(401).json({ error: 'Token Missing' })
+  }
+
+  const decodedToken = jwt.verify(token, SECRET)
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "Invalid Token" })
+  }
+
+  const user = await User.findById(decodedToken.id)
+  const blog = await Blog.findById(blogId)
+
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+
+  if (!blog.user || user._id.toString() !== blog.user.toString()) {
+    return response.status(403).json({ error: 'only the creator can delete a blog' })
+  }
+
+  await Blog.findByIdAndDelete(blogId)
   response.status(204).end()
+
 })
 
-
-// ==== HTTP PUT Router ==== //
+// ================================== //
+// HTTP PUT Route
+// ================================== //
 blogRouter.put('/:id', async (request, response) => {
 
   const id = request.params.id
