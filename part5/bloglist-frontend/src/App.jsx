@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import loginServices from './services/login'
-import blogsServices from './services/blogs'
+import blogServices from './services/blog'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglabel from './components/Togglabel'
@@ -26,7 +26,7 @@ const App = () => {
   // Getting allBlogs from server
   // ====================================== //
   useEffect(() => {
-    blogsServices
+    blogServices
       .getAll()
       .then(allBlogs => setBlogs(allBlogs))
   }, [])
@@ -39,7 +39,7 @@ const App = () => {
     if (loggedUserInLocalStorage) {
       const user = JSON.parse(loggedUserInLocalStorage)
       setUser(user)
-      blogsServices.setToken(user.token)
+      blogServices.setToken(user.token)
     }
   }, [])
 
@@ -55,7 +55,7 @@ const App = () => {
       console.log('Logged in with', username)
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
       setUser(user)
-      blogsServices.setToken(user.token)
+      blogServices.setToken(user.token)
       setNotification({ message: `${username} Logged in successfully`, type: 'success' })
       setTimeout(() => { setNotification(null) }, 3000);
       setUsername('')
@@ -81,7 +81,7 @@ const App = () => {
   // ====================================== //
   const addNewBlog = async (newBlogObject) => {
     try {
-      const savedBlog = await blogsServices.create(newBlogObject)
+      const savedBlog = await blogServices.create(newBlogObject)
       blogFormRef.current.toggleVisibility()
       setBlogs([...blogs, savedBlog])
       setNotification({ message: `a new blog ${savedBlog.title} by ${savedBlog.author} added`, type: 'success' })
@@ -93,6 +93,41 @@ const App = () => {
     }
   }
 
+  // ====================================== //
+  // Http Put method to chnage likes
+  // ====================================== //
+  const handleLike = async (id) => {
+    const blog = blogs.find(b => b.id === id)
+    const changedBlog = { ...blog, likes: blog.likes + 1 }
+
+    try {
+      const updatedBlog = await blogServices.update(id, changedBlog)
+      setBlogs(blogs.map(blog => blog.id === id ? { ...updatedBlog, user: blog.user } : blog))
+    } catch (error) {
+      console.log(`${error.response.data.error}`)
+    }
+  }
+
+  // ====================================== //
+  // BlogsByMostLike
+  // ====================================== //
+  const sortedBlog = [...blogs].sort((a, b) => b.likes - a.likes)
+
+  // ====================================== //
+  // Http Delete Method
+  // ====================================== //
+  const deleteBlogOf = async (id, title, author) => {
+    try {
+      const confirmation = window.confirm(`Remove Blog ${title} by ${author}`)
+      if (confirmation) {
+        await blogServices.remove(id)
+        setBlogs(blogs.filter(blog => blog.id !== id))
+      }
+    } catch (error) {
+      console.log(`${error.response.data.error}`);
+
+    }
+  }
 
   return (
     <div>
@@ -117,8 +152,8 @@ const App = () => {
           </Togglabel>
 
           <h2>Blogs</h2>
-          {blogs.map(blog => (
-            <Blog key={blog.id} blog={blog}/>
+          {sortedBlog.map(blog => (
+            <Blog key={blog.id} blog={blog} increaseLikes={handleLike} activeUser={user} deleteBlog={deleteBlogOf} />
           ))}
         </div>
       )}
