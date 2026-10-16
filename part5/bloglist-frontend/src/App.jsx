@@ -57,12 +57,12 @@ const App = () => {
       setUser(user)
       blogServices.setToken(user.token)
       setNotification({ message: `${username} Logged in successfully`, type: 'success' })
-      setTimeout(() => { setNotification(null) }, 3000);
+      setTimeout(() => { setNotification(null) }, 3000)
       setUsername('')
       setPassword('')
     } catch (error) {
       setNotification({ message: error.response.data.error, type: 'error' })
-      setTimeout(() => { setNotification(null) }, 3000);
+      setTimeout(() => { setNotification(null) }, 3000)
     }
   }
 
@@ -70,10 +70,10 @@ const App = () => {
   // Log-out - Logic
   // ====================================== //
   const handleLogOut = () => {
-    window.localStorage.removeItem("loggedBlogAppUser")
+    window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
     setNotification({ message: `${user.username} Logged out successfully`, type: 'success' })
-    setTimeout(() => { setNotification(null) }, 3000);
+    setTimeout(() => { setNotification(null) }, 3000)
   }
 
   // ====================================== //
@@ -85,7 +85,7 @@ const App = () => {
       blogFormRef.current.toggleVisibility()
       setBlogs([...blogs, savedBlog])
       setNotification({ message: `a new blog ${savedBlog.title} by ${savedBlog.author} added`, type: 'success' })
-      setTimeout(() => { setNotification(null) }, 3000);
+      setTimeout(() => { setNotification(null) }, 3000)
 
     } catch (error) {
       setNotification({ message: `${error.response.data.error}`, type: 'error' })
@@ -124,7 +124,7 @@ const App = () => {
         setBlogs(blogs.filter(blog => blog.id !== id))
       }
     } catch (error) {
-      console.log(`${error.response.data.error}`);
+      console.log(`${error.response.data.error}`)
 
     }
   }

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from 'react'
 
 const Blog = ({ blog, increaseLikes, activeUser, deleteBlog }) => {
 
@@ -20,7 +20,7 @@ const Blog = ({ blog, increaseLikes, activeUser, deleteBlog }) => {
     <div style={blogStyle}>
       {title} ~ {author} <button type="button" onClick={toggleVisibility}>{visible ? 'hide' : 'view'}</button>
       <div style={toggleInfo}>
-        <p>{url}</p>
+        <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
         <p>Likes : {likes} <button type="button" onClick={() => increaseLikes(blog.id)} >like</button></p>
         <p>{user?.name}</p>
         {blog?.user?.username === activeUser?.username && (
