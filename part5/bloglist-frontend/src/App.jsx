@@ -1,3 +1,6 @@
+// ====================================== //
+// Imports
+// ====================================== //
 import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import loginServices from './services/login'
@@ -5,7 +8,11 @@ import blogsServices from './services/blogs'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import Togglabel from './components/Togglabel'
+import LoginForm from './components/LoginForm'
 
+// ====================================== //
+// App
+// ====================================== //
 const App = () => {
 
   const [username, setUsername] = useState('')
@@ -15,12 +22,18 @@ const App = () => {
   const [notification, setNotification] = useState(null)
   const blogFormRef = useRef()
 
+  // ====================================== //
+  // Getting allBlogs from server
+  // ====================================== //
   useEffect(() => {
     blogsServices
       .getAll()
       .then(allBlogs => setBlogs(allBlogs))
   }, [])
 
+  // ====================================== //
+  // Getting user from localStorage
+  // ====================================== //
   useEffect(() => {
     const loggedUserInLocalStorage = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserInLocalStorage) {
@@ -30,10 +43,14 @@ const App = () => {
     }
   }, [])
 
+
+  // ====================================== //
+  // Lon-in Logic
+  // ====================================== //
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      
+
       const user = await loginServices.login({ username, password })
       console.log('Logged in with', username)
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
@@ -49,6 +66,9 @@ const App = () => {
     }
   }
 
+  // ====================================== //
+  // Log-out - Logic
+  // ====================================== //
   const handleLogOut = () => {
     window.localStorage.removeItem("loggedBlogAppUser")
     setUser(null)
@@ -56,6 +76,9 @@ const App = () => {
     setTimeout(() => { setNotification(null) }, 3000);
   }
 
+  // ====================================== //
+  // Adding/sending valid newBlog to server via axios Post Method
+  // ====================================== //
   const addNewBlog = async (newBlogObject) => {
     try {
       const savedBlog = await blogsServices.create(newBlogObject)
@@ -70,38 +93,21 @@ const App = () => {
     }
   }
 
-  const loginForm = () => (
-    <div>
-      <h1>Log in to application</h1>
-      <form onSubmit={handleLogin}>
-
-        <div>
-          <label>
-            username :
-            <input type="text"
-              value={username}
-              onChange={({ target }) => setUsername(target.value)} />
-          </label>
-        </div>
-
-        <div>
-          <label>
-            password :
-            <input type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)} />
-          </label>
-        </div>
-
-        <button type='submit'>Log in</button>
-      </form>
-    </div>
-  )
 
   return (
     <div>
       <Notification notification={notification} />
-      {!user && loginForm()}
+
+      {!user && (
+        <LoginForm
+          loginHandle={handleLogin}
+          username={username}
+          setUsername={setUsername}
+          password={password}
+          setPassword={setPassword}
+        />
+      )}
+
       {user && (
         <div>
           <p>{user.name} logged in <button type='button' onClick={handleLogOut}>Log out</button></p>
@@ -112,7 +118,7 @@ const App = () => {
 
           <h2>Blogs</h2>
           {blogs.map(blog => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog}/>
           ))}
         </div>
       )}
