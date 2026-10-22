@@ -18,8 +18,8 @@ const Blog = ({ blog, increaseLikes, activeUser, deleteBlog }) => {
 
   return (
     <div style={blogStyle}>
-      {title} ~ {author} <button type="button" onClick={toggleVisibility}>{visible ? 'hide' : 'view'}</button>
-      <div style={toggleInfo}>
+      {title} {author} <button type="button" onClick={toggleVisibility}>{visible ? 'hide' : 'view'}</button>
+      <div className='blogDetails' style={toggleInfo}>
         <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
         <p>Likes : {likes} <button type="button" onClick={() => increaseLikes(blog.id)} >like</button></p>
         <p>{user?.name}</p>
