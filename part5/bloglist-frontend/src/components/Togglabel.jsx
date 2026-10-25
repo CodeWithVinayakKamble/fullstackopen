@@ -20,7 +20,7 @@ const Togglabel = (props) => {
 
       <div style={showWhenVisible}>
         {props.children}
-        <button type="button" onClick={toggleVisibility}>Cancel</button>
+        <button type="button" onClick={toggleVisibility}>cancel</button>
       </div>
     </div>
   )

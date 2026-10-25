@@ -83,7 +83,7 @@ const App = () => {
     try {
       const savedBlog = await blogServices.create(newBlogObject)
       blogFormRef.current.toggleVisibility()
-      setBlogs([...blogs, savedBlog])
+      setBlogs([...blogs, { ...savedBlog, user }])
       setNotification({ message: `a new blog ${savedBlog.title} by ${savedBlog.author} added`, type: 'success' })
       setTimeout(() => { setNotification(null) }, 3000)
 
@@ -145,13 +145,13 @@ const App = () => {
 
       {user && (
         <div>
-          <p>{user.name} logged in <button type='button' onClick={handleLogOut}>Log out</button></p>
+          <h2>Blogs</h2>
+          <p>{user.name} logged in <button type='button' onClick={handleLogOut}>log out</button></p>
 
-          <Togglabel buttonLabel='Create New Blog' ref={blogFormRef}>
+          <Togglabel buttonLabel='create new blog' ref={blogFormRef}>
             <BlogForm createNewBlog={addNewBlog} />
           </Togglabel>
 
-          <h2>Blogs</h2>
           {sortedBlog.map(blog => (
             <Blog key={blog.id} blog={blog} increaseLikes={handleLike} activeUser={user} deleteBlog={deleteBlogOf} />
           ))}
