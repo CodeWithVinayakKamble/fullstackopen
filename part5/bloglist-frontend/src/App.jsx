@@ -1,26 +1,29 @@
 // ====================================== //
 // Imports
 // ====================================== //
-import { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
+
+// ==== Dependencies/Lib ==== //
+import { useState, useEffect } from 'react'
+import { Routes, Route, Link, Navigate, useNavigate, useMatch } from 'react-router-dom'
+
+// ==== Components ==== //
+import Notification from './components/Notification'
+import BlogList from './components/BlogList'
+import LoginForm from './components/LoginForm'
+
+// ==== Services ==== //
 import loginServices from './services/login'
 import blogServices from './services/blog'
-import Notification from './components/Notification'
-import BlogForm from './components/BlogForm'
-import Togglabel from './components/Togglabel'
-import LoginForm from './components/LoginForm'
 
 // ====================================== //
 // App
 // ====================================== //
 const App = () => {
 
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
   const [notification, setNotification] = useState(null)
-  const blogFormRef = useRef()
+  const navigate = useNavigate()
 
   // ====================================== //
   // Getting allBlogs from server
@@ -47,19 +50,15 @@ const App = () => {
   // ====================================== //
   // Lon-in Logic
   // ====================================== //
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const handleLogin = async ({ username, password }) => {
     try {
-
       const user = await loginServices.login({ username, password })
       console.log('Logged in with', username)
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
       setUser(user)
       blogServices.setToken(user.token)
-      setNotification({ message: `${username} Logged in successfully`, type: 'success' })
+      setNotification({ message: `${username} log in successfully`, type: 'success' })
       setTimeout(() => { setNotification(null) }, 3000)
-      setUsername('')
-      setPassword('')
     } catch (error) {
       setNotification({ message: error.response.data.error, type: 'error' })
       setTimeout(() => { setNotification(null) }, 3000)
@@ -72,7 +71,8 @@ const App = () => {
   const handleLogOut = () => {
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
-    setNotification({ message: `${user.username} Logged out successfully`, type: 'success' })
+    navigate('/')
+    setNotification({ message: `${user.username} logged out successfully`, type: 'success' })
     setTimeout(() => { setNotification(null) }, 3000)
   }
 
@@ -82,7 +82,6 @@ const App = () => {
   const addNewBlog = async (newBlogObject) => {
     try {
       const savedBlog = await blogServices.create(newBlogObject)
-      blogFormRef.current.toggleVisibility()
       setBlogs([...blogs, { ...savedBlog, user }])
       setNotification({ message: `a new blog ${savedBlog.title} by ${savedBlog.author} added`, type: 'success' })
       setTimeout(() => { setNotification(null) }, 3000)
@@ -109,11 +108,6 @@ const App = () => {
   }
 
   // ====================================== //
-  // BlogsByMostLike
-  // ====================================== //
-  const sortedBlog = [...blogs].sort((a, b) => b.likes - a.likes)
-
-  // ====================================== //
   // Http Delete Method
   // ====================================== //
   const deleteBlogOf = async (id, title, author) => {
@@ -131,32 +125,31 @@ const App = () => {
 
   return (
     <div>
+      <header className='header'>
+
+        <nav className='navbar' >
+
+          <Link to='/'>blogs</Link>
+
+          {user ?
+            <span><strong>{user.name} logged in </strong><button type='button' onClick={handleLogOut}>logout</button></span>
+            :
+            <Link to='/login'>login</Link>
+          }
+
+        </nav>
+
+      </header>
+
       <Notification notification={notification} />
 
-      {!user && (
-        <LoginForm
-          loginHandle={handleLogin}
-          username={username}
-          setUsername={setUsername}
-          password={password}
-          setPassword={setPassword}
-        />
-      )}
+      <Routes>
 
-      {user && (
-        <div>
-          <h2>Blogs</h2>
-          <p>{user.name} logged in <button type='button' onClick={handleLogOut}>log out</button></p>
+        <Route path='/' element={<BlogList blogs={blogs} user={user} handleLike={handleLike} deleteBlogOf={deleteBlogOf} />} />
 
-          <Togglabel buttonLabel='create new blog' ref={blogFormRef}>
-            <BlogForm createNewBlog={addNewBlog} />
-          </Togglabel>
+        <Route path='/login' element={user ? <Navigate replace to={'/'} /> : <LoginForm loginHandle={handleLogin} />} />
 
-          {sortedBlog.map(blog => (
-            <Blog key={blog.id} blog={blog} increaseLikes={handleLike} activeUser={user} deleteBlog={deleteBlogOf} />
-          ))}
-        </div>
-      )}
+      </Routes>
     </div>
   )
 }

@@ -1,8 +1,26 @@
-const LoginForm = ({ loginHandle, username, setUsername, password, setPassword }) => {
+import { useState } from "react"
+
+const LoginForm = ({ loginHandle }) => {
+
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+
+  const sendCredentialsToLoginHandle = (event) => {
+
+    event.preventDefault()
+
+    loginHandle({ username, password })
+
+    setUsername('')
+    setPassword('')
+
+  }
+
   return (
     <>
       <h2>log in to application</h2>
-      <form onSubmit={loginHandle}>
+      <form onSubmit={sendCredentialsToLoginHandle}>
 
         <div>
           <label>
