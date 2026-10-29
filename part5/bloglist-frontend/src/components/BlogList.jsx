@@ -1,6 +1,7 @@
+import { Link } from "react-router-dom"
 import Blog from "./Blog"
 
-const BlogList = ({ blogs, user, handleLike, deleteBlogOf }) => {
+const BlogList = ({ blogs }) => {
 
 
     // ====================================== //
@@ -10,15 +11,16 @@ const BlogList = ({ blogs, user, handleLike, deleteBlogOf }) => {
 
     return (
         <div>
-            {sortedBlog.map(blog => (
-                <Blog
-                    key={blog.id}
-                    blog={blog}
-                    increaseLikes={handleLike}
-                    activeUser={user}
-                    deleteBlog={deleteBlogOf}
-                />
-            ))}
+            <h2>blogs</h2>
+            <ul className="bloglist">
+                {sortedBlog.map(blog => {
+                    return (
+                        <li key={blog.id}>
+                            <Link to={`/blogs/${blog.id}`}>{blog.title} by {blog.author}</Link>
+                        </li>
+                    )
+                })}
+            </ul>
         </div>
     )
 }

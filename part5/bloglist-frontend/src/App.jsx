@@ -10,6 +10,8 @@ import { Routes, Route, Link, Navigate, useNavigate, useMatch } from 'react-rout
 import Notification from './components/Notification'
 import BlogList from './components/BlogList'
 import LoginForm from './components/LoginForm'
+import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 
 // ==== Services ==== //
 import loginServices from './services/login'
@@ -48,7 +50,7 @@ const App = () => {
 
 
   // ====================================== //
-  // Lon-in Logic
+  // Log-in Logic
   // ====================================== //
   const handleLogin = async ({ username, password }) => {
     try {
@@ -57,6 +59,7 @@ const App = () => {
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
       setUser(user)
       blogServices.setToken(user.token)
+      navigate('/')
       setNotification({ message: `${username} log in successfully`, type: 'success' })
       setTimeout(() => { setNotification(null) }, 3000)
     } catch (error) {
@@ -72,7 +75,7 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
     navigate('/')
-    setNotification({ message: `${user.username} logged out successfully`, type: 'success' })
+    setNotification({ message: `${user?.username} logged out successfully`, type: 'success' })
     setTimeout(() => { setNotification(null) }, 3000)
   }
 
@@ -83,6 +86,7 @@ const App = () => {
     try {
       const savedBlog = await blogServices.create(newBlogObject)
       setBlogs([...blogs, { ...savedBlog, user }])
+      navigate('/')
       setNotification({ message: `a new blog ${savedBlog.title} by ${savedBlog.author} added`, type: 'success' })
       setTimeout(() => { setNotification(null) }, 3000)
 
@@ -93,7 +97,7 @@ const App = () => {
   }
 
   // ====================================== //
-  // Http Put method to chnage likes
+  // Http Put method to change likes
   // ====================================== //
   const handleLike = async (id) => {
     const blog = blogs.find(b => b.id === id)
@@ -110,26 +114,32 @@ const App = () => {
   // ====================================== //
   // Http Delete Method
   // ====================================== //
-  const deleteBlogOf = async (id, title, author) => {
+  const deleteBlogOf = async (id) => {
     try {
-      const confirmation = window.confirm(`Remove Blog ${title} by ${author}`)
-      if (confirmation) {
-        await blogServices.remove(id)
-        setBlogs(blogs.filter(blog => blog.id !== id))
-      }
+
+      await blogServices.remove(id)
+      setBlogs(blogs.filter(blog => blog.id !== id))
+      navigate('/')
     } catch (error) {
       console.log(`${error.response.data.error}`)
 
     }
   }
 
+  const match = useMatch(`/blogs/:id`)
+  const blog = match ? blogs.find(blog => blog.id === match.params.id) : null
+
   return (
+
     <div>
+
       <header className='header'>
 
         <nav className='navbar' >
 
           <Link to='/'>blogs</Link>
+
+          {user && <Link to='/create'>new blog</Link>}
 
           {user ?
             <span><strong>{user.name} logged in </strong><button type='button' onClick={handleLogOut}>logout</button></span>
@@ -145,11 +155,16 @@ const App = () => {
 
       <Routes>
 
-        <Route path='/' element={<BlogList blogs={blogs} user={user} handleLike={handleLike} deleteBlogOf={deleteBlogOf} />} />
+        <Route path='/' element={<BlogList blogs={blogs}/>} />
 
         <Route path='/login' element={user ? <Navigate replace to={'/'} /> : <LoginForm loginHandle={handleLogin} />} />
 
+        <Route path='/blogs/:id' element={<Blog blog={blog} activeUser={user} increaseLikes={handleLike} deleteBlog={deleteBlogOf} />} />
+
+        <Route path='/create' element={user ? <BlogForm createNewBlog={addNewBlog} /> : <Navigate replace to='/login' />} />
+
       </Routes>
+
     </div>
   )
 }
