@@ -5,6 +5,7 @@
 // ==== Dependencies/Lib ==== //
 import { useState, useEffect } from 'react'
 import { Routes, Route, Link, Navigate, useNavigate, useMatch } from 'react-router-dom'
+import { Container, AppBar, Toolbar, Button, Typography, Box } from '@mui/material'
 
 // ==== Components ==== //
 import Notification from './components/Notification'
@@ -126,36 +127,35 @@ const App = () => {
     }
   }
 
-  const match = useMatch(`/blogs/:id`)
+  const match = useMatch('/blogs/:id')
   const blog = match ? blogs.find(blog => blog.id === match.params.id) : null
 
   return (
 
-    <div>
+    <Container>
 
-      <header className='header'>
-
-        <nav className='navbar' >
-
-          <Link to='/'>blogs</Link>
-
-          {user && <Link to='/create'>new blog</Link>}
-
-          {user ?
-            <span><strong>{user.name} logged in </strong><button type='button' onClick={handleLogOut}>logout</button></span>
-            :
-            <Link to='/login'>login</Link>
-          }
-
-        </nav>
-
-      </header>
+      <AppBar position="static" sx={{ mb: 2 }}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+            Blog App
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button color="inherit" component={Link} to="/">blogs</Button>
+            {user && <Button color="inherit" component={Link} to="/create">new blog</Button>}
+            {user ? (
+              <Button color="inherit" onClick={handleLogOut}>logout</Button>
+            ) : (
+              <Button color="inherit" component={Link} to="/login">login</Button>
+            )}
+          </Box>
+        </Toolbar>
+      </AppBar>
 
       <Notification notification={notification} />
 
       <Routes>
 
-        <Route path='/' element={<BlogList blogs={blogs}/>} />
+        <Route path='/' element={<BlogList blogs={blogs} />} />
 
         <Route path='/login' element={user ? <Navigate replace to={'/'} /> : <LoginForm loginHandle={handleLogin} />} />
 
@@ -165,7 +165,7 @@ const App = () => {
 
       </Routes>
 
-    </div>
+    </Container>
   )
 }
 

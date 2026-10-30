@@ -11,7 +11,7 @@ test('tesing newBlog form with approprite content', async () => {
   const title = screen.getByPlaceholderText('title')
   const author = screen.getByPlaceholderText('author')
   const url = screen.getByPlaceholderText('url')
-  const createBtn = screen.getByText('Create')
+  const createBtn = screen.getByRole('button', { name: 'CREATE' })
 
   await user.type(title, 'testing blog for 5.16 new blogForm Creation')
   await user.type(author, 'vin')

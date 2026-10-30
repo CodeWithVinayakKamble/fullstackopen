@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { TextField, Button, Box } from '@mui/material'
 
 const BlogForm = ({ createNewBlog }) => {
 
@@ -23,39 +24,44 @@ const BlogForm = ({ createNewBlog }) => {
   }
 
   return (
-    <form onSubmit={newBlog}>
-      <div>
-        <label>
-          title
-          <input type="text"
+    <Box sx={{ mt: 3, maxWidth: 500 }}>
+      <h2>create new</h2>
+      <form onSubmit={newBlog}>
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            label="title"
             value={title}
             onChange={({ target }) => setTitle(target.value)}
-            placeholder='title' />
-        </label>
-      </div>
-
-      <div>
-        <label>
-          author
-          <input type="text"
+            placeholder='title'
+            required
+          />
+        </Box>
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            label="author"
             value={author}
             onChange={({ target }) => setAuthor(target.value)}
-            placeholder='author'/>
-        </label>
-      </div>
-
-      <div>
-        <label>
-          url
-          <input type="text"
+            placeholder='author'
+            required
+          />
+        </Box>
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            label="url"
             value={url}
             onChange={({ target }) => setUrl(target.value)}
-            placeholder='url'/>
-        </label>
-      </div>
-
-      <button type='submit'>create</button>
-    </form>
+            placeholder='url'
+            required
+          />
+        </Box>
+        <Button variant="contained" color="primary" type="submit">
+          CREATE
+        </Button>
+      </form>
+    </Box>
   )
 }
 

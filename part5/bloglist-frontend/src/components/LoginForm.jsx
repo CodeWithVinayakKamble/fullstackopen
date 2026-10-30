@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState } from 'react'
+import { TextField, Button, Box } from '@mui/material'
 
 const LoginForm = ({ loginHandle }) => {
 
@@ -18,32 +19,37 @@ const LoginForm = ({ loginHandle }) => {
   }
 
   return (
-    <>
-      <h2>log in to application</h2>
+    <Box sx={{ mt: 3, maxWidth: 400 }}>
+      <h2>Log in to application</h2>
       <form onSubmit={sendCredentialsToLoginHandle}>
-
-        <div>
-          <label>
-            username
-            <input type="text"
-              value={username}
-              onChange={({ target }) => setUsername(target.value)} />
-          </label>
-        </div>
-
-        <div>
-          <label>
-            password
-            <input type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)} />
-          </label>
-        </div>
-
-        <button type='submit'>log in</button>
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            variant="standard"
+            label="username"
+            value={username}
+            onChange={({ target }) => setUsername(target.value)}
+            required
+          />
+        </Box>
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            variant="standard"
+            type="password"
+            label="password"
+            value={password}
+            onChange={({ target }) => setPassword(target.value)}
+            required
+          />
+        </Box>
+        <Button variant="contained" color="primary" type="submit">
+          LOGIN
+        </Button>
       </form>
-    </>
+    </Box>
   )
+
 }
 
 export default LoginForm

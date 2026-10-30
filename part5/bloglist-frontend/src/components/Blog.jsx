@@ -1,3 +1,5 @@
+import { Card, CardContent, Typography, Button, Box } from '@mui/material'
+
 const Blog = ({ blog, increaseLikes, activeUser, deleteBlog }) => {
 
 
@@ -17,25 +19,48 @@ const Blog = ({ blog, increaseLikes, activeUser, deleteBlog }) => {
   }
 
   return (
-    <div className='blog'>
-
-      <h2>{author}:{title}</h2>
-
-      <div className='blogDetails'>
-
-        <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
-
-        <p>Likes {likes} {activeUser && (<button type="button" onClick={() => increaseLikes(blog.id)} >like</button>)}</p>
-
-        <p>Added by {user?.name}</p>
-
-        {activeUser && blog?.user?.username === activeUser?.username && (
-          <button type="button" onClick={handleDelete} >remove</button>
-        )}
-
-      </div>
-
-    </div>
+    <Box sx={{ mt: 3, maxWidth: 600 }}>
+      <Card elevation={2} sx={{ p: 2 }}>
+        <CardContent>
+          <Typography variant="h4" component="h2" sx={{ fontWeight: '500', mb: 1 }}>
+            {title}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 1.5 }}>
+            by {author}
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 1.5 }}>
+            <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Added by {user?.name || user?.username || 'anonymous'}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+              {likes} likes
+            </Typography>
+            {activeUser && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => increaseLikes(blog.id)}
+              >
+                LIKE
+              </Button>
+            )}
+            {activeUser && blog?.user?.username === activeUser?.username && (
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                onClick={handleDelete}
+              >
+                REMOVE
+              </Button>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   )
 }
 

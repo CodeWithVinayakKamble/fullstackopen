@@ -1,5 +1,4 @@
 import { screen, render } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
 
@@ -19,13 +18,13 @@ test('renders blog information to unauthenticated users and not buttons', () => 
 
   render(<Blog blog={testBlog} />)
 
-  const title = screen.getByText('vinayak:guest user able to see only blog info not buttons', { exact: false })
+  const title = screen.getByText('guest user able to see only blog info not buttons', { exact: false })
   const url = screen.getByRole('link', { name: 'example.com' })
-  const likes = screen.getByText('Likes 15', { exact: false })
+  const likes = screen.getByText('15 likes', { exact: false })
 
   // queryByRole does not throw an error; if the element is missing, it returns null!
-  const likeBtn = screen.queryByRole('button', { name: 'like' })
-  const deleteBtn = screen.queryByRole('button', { name: 'remove' })
+  const likeBtn = screen.queryByRole('button', { name: 'LIKE' })
+  const deleteBtn = screen.queryByRole('button', { name: 'REMOVE' })
 
   expect(title).toBeDefined()
   expect(url).toBeDefined()
@@ -58,13 +57,13 @@ test('User B can able to see only User A blog post info and like button not remo
 
   render(<Blog blog={testBlog} activeUser={userB} />)
 
-  const title = screen.getByText('mattie lukkain:userB able to see only blog info and like button', { exact: false })
+  const title = screen.getByText('userB able to see only blog info and like button', { exact: false })
   const url = screen.getByRole('link', { name: 'fullstackopne.com' })
-  const likes = screen.getByText('Likes 15', { exact: false })
+  const likes = screen.getByText('15 likes', { exact: false })
 
   // queryByRole does not throw an error; if the element is missing, it returns null!
-  const likeBtn = screen.queryByRole('button', { name: 'like' })
-  const deleteBtn = screen.queryByRole('button', { name: 'remove' })
+  const likeBtn = screen.queryByRole('button', { name: 'LIKE' })
+  const deleteBtn = screen.queryByRole('button', { name: 'REMOVE' })
 
   expect(title).toBeDefined()
   expect(url).toBeDefined()
@@ -96,13 +95,13 @@ test('Blog user can able to see remove button', () => {
 
   render(<Blog blog={testBlog} activeUser={activeUser} />)
 
-  const title = screen.getByText('mattie lukkain:blog user can able see remove button', { exact: false })
+  const title = screen.getByText('blog user can able see remove button', { exact: false })
   const url = screen.getByRole('link', { name: 'fullstackopne.com' })
-  const likes = screen.getByText('Likes 15', { exact: false })
+  const likes = screen.getByText('15 likes', { exact: false })
 
   // queryByRole does not throw an error; if the element is missing, it returns null!
-  const likeBtn = screen.queryByRole('button', { name: 'like' })
-  const deleteBtn = screen.queryByRole('button', { name: 'remove' })
+  const likeBtn = screen.queryByRole('button', { name: 'LIKE' })
+  const deleteBtn = screen.queryByRole('button', { name: 'REMOVE' })
 
   expect(title).toBeDefined()
   expect(url).toBeDefined()

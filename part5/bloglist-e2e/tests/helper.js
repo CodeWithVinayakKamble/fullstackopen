@@ -1,14 +1,14 @@
 const loginWith = async (page, username, password) => {
     await page.getByRole('textbox', { name: 'username', exact: true }).fill(username)
     await page.getByRole('textbox', { name: 'password', exact: true }).fill(password)
-    await page.getByRole('button', { name: 'log in' }).click()
+    await page.getByRole('button', { name: 'LOGIN' }).click()
 }
 
 const createBlog = async (page, title, author, url) => {
     await page.getByRole('textbox', { name: 'title' }).fill(title)
     await page.getByRole('textbox', { name: 'author' }).fill(author)
     await page.getByRole('textbox', { name: 'url' }).fill(url)
-    await page.getByRole('button', { name: 'create' }).click()
+    await page.getByRole('button', { name: 'CREATE' }).click()
 }
 
 
