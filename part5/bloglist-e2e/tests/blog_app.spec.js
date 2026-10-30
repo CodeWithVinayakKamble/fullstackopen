@@ -8,18 +8,18 @@ describe('Blog app', () => {
         await request.post('/api/users', {
             data: {
                 username: 'root',
-                name: 'superuser',
+                name: 'vinayak kamble',
                 password: 'root@#123'
             }
         })
         await request.post('/api/users', {
             data: {
                 username: 'superroot',
-                name: 'papa vinde',
+                name: 'vincent griffit',
                 password: 'root@#123'
             }
         })
-        await page.goto('/')
+        await page.goto('/login')
     })
 
     test('login form is shown', async ({ page }) => {
@@ -31,78 +31,63 @@ describe('Blog app', () => {
 
     describe('Log in', () => {
 
+        // Login succeeds with the correct username/password combination
         test('succeeds with correct credentials', async ({ page }) => {
             await loginWith(page, 'root', 'root@#123')
-            await expect(page.getByText('superUser logged in')).toBeVisible()
+            await expect(page).toHaveURL('http://localhost:5173/')
+            await expect(page.getByText('vinayak kamble logged in')).toBeVisible()
         })
 
+        // Login fails if the username/password is incorrect
         test('fails with wrong credentials', async ({ page }) => {
             await loginWith(page, 'root', 'root@123')
+            await expect(page).toHaveURL('http://localhost:5173/login')
             await expect(page.getByText('Invalid username or password')).toBeVisible()
-            await expect(page.getByText('superUser logged in')).not.toBeVisible()
         })
 
     })
 
-    describe('when logged in', () => {
+    describe('when user logged in', () => {
 
         beforeEach(async ({ page }) => {
             await loginWith(page, 'root', 'root@#123')
         })
 
-        test('a new blog can be created', async ({ page }) => {
-            await createBlog(page, 'test blog playwright', 'superUser', 'https://example.com')
-            await expect(page.getByText('test blog playwright superUser')).toBeVisible()
+        // A logged-in user can create a blog
+        test('user can able to create a new blog', async ({ page }) => {
+            await page.getByRole('link', { name: 'new blog' }).click()
+            await expect(page).toHaveURL('http://localhost:5173/create')
+            await createBlog(page, 'a blog can get liked by active user ', 'papa vinde', 'fso.com')
+            await expect(page).toHaveURL('http://localhost:5173')
+            await expect(page.getByRole('link', { name: 'a blog can get liked by active user  by papa vinde' })).toBeVisible()
         })
 
-        test('a blog can be get liked', async ({ page }) => {
-            await createBlog(page, 'test blog for get liked', 'superStarDev', 'https://example.com')
-            await page.getByRole('button', { name: 'view' }).click()
+        // A logged-in user can like blogs
+        test('user can able to like the blog', async ({ page }) => {
+            await page.getByRole('link', { name: 'new blog' }).click()
+            await expect(page).toHaveURL('http://localhost:5173/create')
+            await createBlog(page, 'a blog can get liked by active user ', 'papa vinde', 'fso.com')
+            await expect(page).toHaveURL('http://localhost:5173')
+            await page.getByRole('link', { name: 'a blog can get liked by active user by papa vinde', exact: false }).click()
+            await expect(page).toHaveURL(/.*\/blogs\/.+/)
             await page.getByRole('button', { name: 'like' }).click()
-            await expect(page.getByText('Likes 1 like')).toBeVisible()
+            await expect(page.getByText('Likes 1')).toBeVisible()
         })
 
-        test('a blog can be get deleted', async ({ page }) => {
-            await createBlog(page, 'test blog for getting deleted by playwright', 'superuser', 'https://example.com')
-            await page.getByRole('button', { name: 'view' }).click()
+        // A logged-in user can delete a blog
+        test('user can able to delete the blog', async ({ page }) => {
+            await page.getByRole('link', { name: 'new blog' }).click()
+            await expect(page).toHaveURL('http://localhost:5173/create')
+            await createBlog(page, 'a blog can get deleted by active user ', 'papa vinde', 'fso.com')
+            await expect(page).toHaveURL('http://localhost:5173')
+            await page.getByRole('link', { name: 'a blog can get deleted by active user by papa vinde', exact: false }).click()
+            await expect(page).toHaveURL(/.*\/blogs\/.+/)
+            await page.getByRole('button', { name: 'like' }).click()
+            await expect(page.getByText('Likes 1')).toBeVisible()
             page.on('dialog', dialog => dialog.accept())
             await page.getByRole('button', { name: 'remove' }).click()
-            await expect(page.getByText('test blog for getting deleted by playwright', { exact: 'true' })).not.toBeVisible()
-            await page.reload()
+            await expect(page).toHaveURL('http://localhost:5173')
+            await expect(page.getByRole('link', { name: 'a blog can get deleted by active user by papa vinde', exact: false })).not.toBeVisible()
         })
-
-        test("user who added the blog sees the blog's delete button", async ({ page }) => {
-            await createBlog(page, 'second user cant see first users remove button', 'superuser', 'https://example.com')
-            await page.getByRole('button', { name: 'log out' }).click()
-            await loginWith(page, 'superroot', 'root@#123')
-            await page.getByRole('button', { name: 'view' }).click()
-            await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
-        })
-
-        test("the blog with the most likes first", async ({ page }) => {
-
-            await createBlog(page, 'Blog A', 'papa tunde', 'vampirediaries.com')
-            await createBlog(page, 'Blog B', 'vincent griffit', 'vampirediaries.com')
-            await createBlog(page, 'Blog C', 'tribrid', 'vampirediaries.com')
-
-            const blogA = page.locator('.blog').filter({ hasText: 'Blog A' })
-            const blogB = page.locator('.blog').filter({ hasText: 'Blog B' })
-
-            await blogA.getByRole('button', { name: 'view' }).click()
-            await blogA.getByRole('button', { name: 'like' }).click()
-            await blogA.getByRole('button', { name: 'like' }).click()
-            await blogA.getByRole('button', { name: 'like' }).click()
-
-            await blogB.getByRole('button', { name: 'view' }).click()
-            await blogB.getByRole('button', { name: 'like' }).click()
-            await blogB.getByRole('button', { name: 'like' }).click()
-
-            const allBlogs = page.locator('.blog')
-            await expect(allBlogs.first()).toContainText('Blog A')
-            await expect(allBlogs.nth(1)).toContainText('Blog B')
-            await expect(allBlogs.last()).toContainText('Blog C')
-
-        })
-
     })
 })

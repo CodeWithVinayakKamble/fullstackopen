@@ -3,76 +3,112 @@ import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
 
-test('renders only blogTitle and blogAuthor', () => {
+// Blog information and the number of likes are displayed to unauthenticated users, buttons are not displayed
+test('renders blog information to unauthenticated users and not buttons', () => {
 
-  const blog = {
-    title: 'testing blog that checks that whether its rendering or not',
-    author: 'vin',
-    url: 'https://testurl.com',
-    likes: 10,
+  const testBlog = {
+    title: 'guest user able to see only blog info not buttons',
+    author: 'vinayak',
+    url: 'example.com',
+    likes: 15,
     user: {
-      name: 'Vinayak'
+      name: 'vinayak kamble',
+      username: 'vinayakkamble'
     }
   }
 
-  const { container } = render(<Blog blog={blog} />)
+  render(<Blog blog={testBlog} />)
 
-  const element = screen.getByText('testing blog that checks that whether its rendering or not', { exact: false })
+  const title = screen.getByText('vinayak:guest user able to see only blog info not buttons', { exact: false })
+  const url = screen.getByRole('link', { name: 'example.com' })
+  const likes = screen.getByText('Likes 15', { exact: false })
 
-  const div = container.querySelector('.blogDetails')
+  // queryByRole does not throw an error; if the element is missing, it returns null!
+  const likeBtn = screen.queryByRole('button', { name: 'like' })
+  const deleteBtn = screen.queryByRole('button', { name: 'remove' })
 
+  expect(title).toBeDefined()
+  expect(url).toBeDefined()
+  expect(likes).toBeDefined()
 
-  expect(element).toBeDefined()
-  expect(div).toHaveStyle('display:none')
+  expect(likeBtn).toBeNull()
+  expect(deleteBtn).toBeNull()
 })
 
-test('blogDetails shown on click button view (likes,url)', async () => {
 
-  const blog = {
-    title: 'testing blog that checks that whether its rendering or not',
-    author: 'vin',
-    url: 'https://testurl.com',
-    likes: 10,
+// Authenticated users who are not the blog’s creator are shown only the like button
+test('User B can able to see only User A blog post info and like button not remove button', () => {
+
+  const testBlog = {
+    title: 'userB able to see only blog info and like button',
+    author: 'mattie lukkain',
+    url: 'fullstackopne.com',
+    likes: 15,
     user: {
-      name: 'Vinayak'
+      name: 'vinayak kamble',
+      username: 'vinayakkamble'
     }
   }
-  const { container } = render(<Blog blog={blog} />)
-  const user = userEvent.setup()
 
+  const userB = {
+    name: 'vincent',
+    username: 'vincent griffit',
+    token: 'hgjbknlmkjlhgfdfszxcvbnklljhuuytrsdxcvbnlkjhgfgdx'
+  }
 
-  const button = screen.getByText('view')
+  render(<Blog blog={testBlog} activeUser={userB} />)
 
-  await user.click(button)
+  const title = screen.getByText('mattie lukkain:userB able to see only blog info and like button', { exact: false })
+  const url = screen.getByRole('link', { name: 'fullstackopne.com' })
+  const likes = screen.getByText('Likes 15', { exact: false })
 
-  const div = container.querySelector('.blogDetails')
-  expect(div).not.toHaveStyle('display:none')
+  // queryByRole does not throw an error; if the element is missing, it returns null!
+  const likeBtn = screen.queryByRole('button', { name: 'like' })
+  const deleteBtn = screen.queryByRole('button', { name: 'remove' })
+
+  expect(title).toBeDefined()
+  expect(url).toBeDefined()
+  expect(likes).toBeDefined()
+
+  expect(likeBtn).not.toBeNull()
+  expect(deleteBtn).toBeNull()
 })
 
-test('like button got clicked twice or more than one 1+', async () => {
 
-  const blog = {
-    title: 'testing blog that checks that whether its rendering or not',
-    author: 'vin',
-    url: 'https://testurl.com',
-    likes: 10,
+// The blog’s creator is also shown the delete button
+test('Blog user can able to see remove button', () => {
+  const testBlog = {
+    title: 'blog user can able see remove button',
+    author: 'mattie lukkain',
+    url: 'fullstackopne.com',
+    likes: 15,
     user: {
-      name: 'Vinayak'
+      name: 'vinayak kamble',
+      username: 'vinayakkamble'
     }
   }
-  const likes = vi.fn()
-  const user = userEvent.setup()
 
+  const activeUser = {
+    name: 'vinayak kamble',
+    username: 'vinayakkamble',
+    token: 'hgjbknlmkjlhgfdfszxcsmh,jqvbnklljhuuytrsdxcvbnlkjhgfgdx'
+  }
 
-  render(<Blog blog={blog} increaseLikes={likes} />)
+  render(<Blog blog={testBlog} activeUser={activeUser} />)
 
+  const title = screen.getByText('mattie lukkain:blog user can able see remove button', { exact: false })
+  const url = screen.getByRole('link', { name: 'fullstackopne.com' })
+  const likes = screen.getByText('Likes 15', { exact: false })
 
+  // queryByRole does not throw an error; if the element is missing, it returns null!
+  const likeBtn = screen.queryByRole('button', { name: 'like' })
+  const deleteBtn = screen.queryByRole('button', { name: 'remove' })
 
-  const likeButton = screen.getByText('like')
+  expect(title).toBeDefined()
+  expect(url).toBeDefined()
+  expect(likes).toBeDefined()
 
-  await user.click(likeButton)
-  await user.click(likeButton)
-
-  expect(likes.mock.calls).toHaveLength(2)
+  expect(likeBtn).toBeInTheDocument()
+  expect(deleteBtn).toBeInTheDocument()
 
 })

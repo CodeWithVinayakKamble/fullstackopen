@@ -29,7 +29,7 @@ const Blog = ({ blog, increaseLikes, activeUser, deleteBlog }) => {
 
         <p>Added by {user?.name}</p>
 
-        {blog?.user?.username === activeUser?.username && (
+        {activeUser && blog?.user?.username === activeUser?.username && (
           <button type="button" onClick={handleDelete} >remove</button>
         )}
 
